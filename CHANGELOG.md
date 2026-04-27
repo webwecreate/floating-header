@@ -3,6 +3,30 @@
 
 ---
 
+## [1.0.0-part3] — 2026-04-27
+### Added — Part 3: CSS Animation + Admin Styles
+- `assets/style.css` v1.0.0 — สร้างใหม่ทั้งไฟล์
+- `assets/admin.css` v1.0.0 — สร้างใหม่ทั้งไฟล์
+- `.fh-wrapper` — position: relative, min-height 400px, overflow: hidden
+- `.fh-logo-layer` — position: absolute inset:0, z-index: 1, pointer-events: none
+- `.fh-logo` — position: absolute ใช้ CSS custom properties `--fh-x` / `--fh-y` จาก PHP
+- `@keyframes fh-float-up` — translateY 0 → -20px → 0 (infinite ease-in-out)
+- `@keyframes fh-float-down` — translateY 0 → +20px → 0 (infinite ease-in-out)
+- `.fh-float-up` / `.fh-float-down` — ใช้ `--fh-duration` + `--fh-delay` custom props
+- `@media (prefers-reduced-motion: reduce)` — ปิด animation อัตโนมัติ
+- `.fh-title-layer` — position: absolute, top/left 50%, transform translate(-50%,-50%), z-index: 10
+- Layout tiers: `data-logo-count` attribute (1-3, 4-6) + `.fh-tier-3` / `.fh-tier-4` class
+- Tier 3 (7–12 logos): even items opacity 0.75
+- Tier 4 (13+ logos): items n+7 opacity 0.5
+- Responsive breakpoints: 768px (min-height 280px, translateY ±12px), 480px (min-height 220px)
+- `assets/admin.css` — `.column-fh_thumbnail` width 80px, img 60×60 object-fit cover
+- jQuery UI Sortable styles: grab cursor, placeholder dashed blue, helper box-shadow
+- Drag handle hint `⠿` แสดงบน thumbnail column เมื่อ hover row
+- Options page `.fh-options-wrap` max-width 780px, form-table th width 180px
+- `.fh-notice-saved` — admin notice border-left green
+
+---
+
 ## [1.0.0-part2] — 2026-04-27
 ### Added — Part 2: Options Page
 - `includes/options-page.php` v1.0.0 — สร้างใหม่ทั้งไฟล์
