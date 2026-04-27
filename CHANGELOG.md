@@ -3,6 +3,30 @@
 
 ---
 
+## [1.0.0-part4] — 2026-04-27
+### Added — Part 4: Shortcode + Layout Logic
+- `includes/shortcode.php` v1.0.0 — สร้างใหม่ทั้งไฟล์
+- File guard ครบ: `ABSPATH` check + `FH_VERSION` check ป้องกัน direct access และ orphan include
+- `add_shortcode( 'floating_header', 'fh_render_shortcode' )` — Register shortcode
+- `fh_render_shortcode()` — Enqueue `style.css` ผ่าน `FH_ASSETS`, query CPT `fh_logo` (publish, menu_order ASC), return `ob_get_clean()`
+- Query options: `get_option('fh_title')` + `get_option('fh_subtitle')` พร้อม default empty string
+- Logo loop: ข้าม post ที่ไม่มี thumbnail หรือ URL ไม่ได้ (guard `continue`)
+- Float direction: index คี่ → `fh-float-up`, index คู่ → `fh-float-down`
+- Animation: `--fh-delay` = `$index * 0.5s`, `--fh-duration` = `3 + ($index % 3 * 0.5)s`
+- Alt text: ดึง `_wp_attachment_image_alt` meta → fallback `get_the_title()` ของ logo post
+- Tier CSS class: `fh-tier-3` (7–12 logos), `fh-tier-4` (13+ logos) บน `.fh-wrapper`
+- `data-logo-count` attribute บน `.fh-wrapper` สำหรับ CSS tier targeting
+- `fh_calc_logo_position( $index, $total )` — คืน array `['x' => %, 'y' => %]`
+  - Tier 1 (1–3): predefined grid 1 ชั้น horizontal center (15/50/85%)
+  - Tier 2 (4–6): 2 rows × 3 cols, x=[15,50,85], y=[30,70]
+  - Tier 3 (7–12): 3 rows × 4 cols + offset ±4% X / ±5% Y สลับตาม index
+  - Tier 4 (13+): deterministic scatter ด้วย `($index * 37+13) % 78 + 8` / `($index * 53+7) % 78 + 8`
+- Output HTML ตรงตาม Master spec: `fh-wrapper > fh-logo-layer + fh-title-layer`
+- Title: `<h1 class="fh-title">` แสดงเมื่อ option ไม่ว่าง
+- Subtitle: `<div class="fh-subtitle">` ผ่าน `wp_kses_post()` แสดงเมื่อ option ไม่ว่าง
+
+---
+
 ## [1.0.0-part3] — 2026-04-27
 ### Added — Part 3: CSS Animation + Admin Styles
 - `assets/style.css` v1.0.0 — สร้างใหม่ทั้งไฟล์
