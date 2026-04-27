@@ -1,99 +1,79 @@
 /**
- * Floating Header Plugin — Frontend Styles
- * File:    assets/style.css
- * Version: 1.0.0
- * Updated: 2026-04-27
+ * Floating Header — style.css v1.0.1
  */
 
-/* ============================================================
-   1. WRAPPER
-   ============================================================ */
+:root {
+    --fh-float-y: 20px;
+}
 
 .fh-wrapper {
     position: relative;
-    width: 100%;
     min-height: 400px;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 100%;
 }
-
-/* ============================================================
-   2. LOGO LAYER
-   ============================================================ */
 
 .fh-logo-layer {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
     z-index: 1;
     pointer-events: none;
 }
 
+/**
+ * --fh-x / --fh-y มาจาก PHP (shortcode.php)
+ * translate(-50%,-50%) รวมอยู่ใน keyframes เพื่อไม่ให้ animation override centering
+ */
 .fh-logo {
     position: absolute;
     left: var(--fh-x, 50%);
-    top:  var(--fh-y, 50%);
-    transform: translate(-50%, -50%);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    top: var(--fh-y, 50%);
 }
 
 .fh-logo img {
     display: block;
-    max-width: 100%;
+    width: auto;
     height: auto;
+    max-width: 120px;
+    max-height: 80px;
     object-fit: contain;
-    user-select: none;
-    pointer-events: none;
 }
 
-/* ============================================================
-   3. FLOAT ANIMATIONS
-   ============================================================ */
-
 @keyframes fh-float-up {
-    0%,  100% { transform: translate(-50%, -50%) translateY(0px); }
-    50%        { transform: translate(-50%, -50%) translateY(-20px); }
+    0%,
+    100% {
+        transform: translate(-50%, -50%) translateY(0);
+    }
+    50% {
+        transform: translate(-50%, -50%) translateY(calc(-1 * var(--fh-float-y)));
+    }
 }
 
 @keyframes fh-float-down {
-    0%,  100% { transform: translate(-50%, -50%) translateY(0px); }
-    50%        { transform: translate(-50%, -50%) translateY(20px); }
+    0%,
+    100% {
+        transform: translate(-50%, -50%) translateY(0);
+    }
+    50% {
+        transform: translate(-50%, -50%) translateY(var(--fh-float-y));
+    }
 }
 
 .fh-float-up {
-    animation-name:            fh-float-up;
-    animation-duration:        var(--fh-duration, 3s);
-    animation-delay:           var(--fh-delay,    0s);
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
-    animation-fill-mode:       both;
+    animation: fh-float-up var(--fh-duration, 3s) ease-in-out var(--fh-delay, 0s) infinite;
 }
 
 .fh-float-down {
-    animation-name:            fh-float-down;
-    animation-duration:        var(--fh-duration, 3s);
-    animation-delay:           var(--fh-delay,    0s);
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
-    animation-fill-mode:       both;
+    animation: fh-float-down var(--fh-duration, 3s) ease-in-out var(--fh-delay, 0s) infinite;
 }
 
-/* Accessibility: respect reduced-motion preference */
 @media (prefers-reduced-motion: reduce) {
     .fh-float-up,
     .fh-float-down {
         animation: none;
+        transform: translate(-50%, -50%);
     }
 }
-
-/* ============================================================
-   4. TITLE LAYER
-   ============================================================ */
 
 .fh-title-layer {
     position: absolute;
@@ -102,81 +82,58 @@
     transform: translate(-50%, -50%);
     text-align: center;
     z-index: 10;
-    width: 90%;
-    max-width: 800px;
-    pointer-events: auto;
+    width: 80%;
+    pointer-events: none;
 }
 
 .fh-title {
-    margin: 0 0 0.5em;
-    padding: 0;
+    margin: 0 0 0.4em;
     line-height: 1.2;
 }
 
 .fh-subtitle {
-    margin: 0;
     line-height: 1.6;
 }
 
-.fh-subtitle p:last-child {
-    margin-bottom: 0;
-}
-
-/* ============================================================
-   5. LAYOUT TIERS — จำนวน Logo (ควบคุม opacity ผ่าน PHP ด้วย)
-   ============================================================ */
-
-/* 1–3 logos: full opacity, standard size */
-.fh-wrapper[data-logo-count="1"] .fh-logo,
-.fh-wrapper[data-logo-count="2"] .fh-logo,
-.fh-wrapper[data-logo-count="3"] .fh-logo {
-    opacity: 1;
-}
-
-/* 4–6 logos: full opacity */
-.fh-wrapper[data-logo-count="4"] .fh-logo,
-.fh-wrapper[data-logo-count="5"] .fh-logo,
-.fh-wrapper[data-logo-count="6"] .fh-logo {
-    opacity: 1;
-}
-
-/* 7–12 logos: slight fade on even items */
-.fh-wrapper.fh-tier-3 .fh-logo:nth-child(even) {
+.fh-tier-3 .fh-logo:nth-child(even) {
     opacity: 0.75;
 }
 
-/* 13+ logos: scatter — fade secondary items more */
-.fh-wrapper.fh-tier-4 .fh-logo:nth-child(n+7) {
+.fh-tier-4 .fh-logo:nth-child(n + 7) {
     opacity: 0.5;
 }
 
-/* ============================================================
-   6. RESPONSIVE
-   ============================================================ */
-
 @media (max-width: 768px) {
+    :root {
+        --fh-float-y: 12px;
+    }
+
     .fh-wrapper {
         min-height: 280px;
     }
 
-    @keyframes fh-float-up {
-        0%,  100% { transform: translate(-50%, -50%) translateY(0px); }
-        50%        { transform: translate(-50%, -50%) translateY(-12px); }
-    }
-
-    @keyframes fh-float-down {
-        0%,  100% { transform: translate(-50%, -50%) translateY(0px); }
-        50%        { transform: translate(-50%, -50%) translateY(12px); }
+    .fh-logo img {
+        max-width: 80px;
+        max-height: 56px;
     }
 
     .fh-title-layer {
-        width: 92%;
+        width: 90%;
     }
 }
 
 @media (max-width: 480px) {
+    :root {
+        --fh-float-y: 8px;
+    }
+
     .fh-wrapper {
         min-height: 220px;
+    }
+
+    .fh-logo img {
+        max-width: 56px;
+        max-height: 40px;
     }
 
     .fh-title-layer {

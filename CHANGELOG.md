@@ -3,6 +3,41 @@
 
 ---
 
+## [1.0.1-part5] — 2026-04-27
+### Changed — Part 5: Testing + Fine-tune (all files → v1.0.1)
+
+#### floating-header.php
+- File guard เขียนใหม่แบบ clean code: ใช้ `array_filter` + arrow function ตรวจสอบ `$fh_required` array → แสดง admin notice พร้อม `<code>` tag รายชื่อไฟล์ที่หาย → `return` ก่อน require ทุกไฟล์ (ไม่มี comment ซ่อน)
+
+#### includes/cpt.php
+- แยก inline script ออกเป็น function `fh_sortable_inline_script()` อ่านและ maintain ง่ายขึ้น
+- เพิ่ม `no_found_rows: true` pattern (ปรับใน shortcode) เพื่อ performance
+- เพิ่ม guard `if ( $post_id > 0 )` ใน AJAX sort handler ป้องกัน `wp_update_post` ด้วย id=0
+
+#### includes/options-page.php
+- เพิ่ม `wp_enqueue_style( 'fh-admin-css' )` ใน render function เพื่อ load admin.css เฉพาะหน้า settings
+
+#### includes/shortcode.php
+- แก้ bug: เพิ่ม `decoding="async"` บน `<img>` สำหรับ Elementor performance
+- เพิ่ม `no_found_rows => true` ใน `get_posts()` arguments ลด SQL overhead
+- แยก logo validation loop ออกจาก render loop ชัดเจนขึ้น
+- Cast `(float)` ทุก CSS custom property ค่า ป้องกัน XSS edge case
+
+#### assets/style.css — **Bug fix สำคัญ**
+- **แก้ bug animation override**: keyframes เดิม `transform: translateY(...)` ทับ `translate(-50%,-50%)` ทำให้ logo กระโดดออกจาก position → แก้เป็น combined `transform: translate(-50%,-50%) translateY(...)` ใน keyframes ทั้ง 2 ตัว
+- เพิ่ม CSS custom property `--fh-float-y: 20px` บน `:root` → ลดเป็น `12px` (768px) และ `8px` (480px) โดยไม่ต้องเขียน `@keyframes` ซ้ำ
+- เพิ่ม `@media (prefers-reduced-motion)` เพิ่ม `transform: translate(-50%,-50%)` fallback เพื่อให้ logo ยังอยู่ตำแหน่งถูกต้องเมื่อ animation ดับ
+- เพิ่ม `pointer-events: none` บน `.fh-title-layer`
+- เพิ่ม responsive `max-height` บน `.fh-logo img`: 80px → 56px → 40px
+
+#### assets/admin.css
+- เพิ่ม `.fh-drag-handle:hover` color transition
+- เพิ่ม `.fh-drag-handle:active` cursor: grabbing
+- เพิ่ม `border-radius: 4px` บน thumbnail image
+- เพิ่ม `outline` บน `.ui-sortable-helper` ให้เห็น drag item ชัดขึ้น
+
+---
+
 ## [1.0.0-part4] — 2026-04-27
 ### Added — Part 4: Shortcode + Layout Logic
 - `includes/shortcode.php` v1.0.0 — สร้างใหม่ทั้งไฟล์

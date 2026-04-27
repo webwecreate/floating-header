@@ -1,98 +1,60 @@
 /**
- * Floating Header Plugin — Admin Styles
- * File:    assets/admin.css
- * Version: 1.0.0
- * Updated: 2026-04-27
+ * Floating Header — admin.css v1.0.1
  */
-
-/* ============================================================
-   1. CPT LIST TABLE — Thumbnail column
-   ============================================================ */
 
 .column-fh_thumbnail {
     width: 80px;
-    text-align: center;
 }
 
 .column-fh_thumbnail img {
-    display: inline-block;
     width: 60px;
     height: 60px;
     object-fit: cover;
     border-radius: 4px;
-    border: 1px solid #dcdcde;
-    background: #f6f7f7;
+    display: block;
 }
 
-/* ============================================================
-   2. DRAG SORT — jQuery UI Sortable
-   ============================================================ */
-
-#the-list tr {
+.fh-drag-handle {
+    display: inline-block;
     cursor: grab;
+    margin-right: 6px;
+    color: #aaa;
+    font-size: 18px;
+    line-height: 1;
+    vertical-align: middle;
+    user-select: none;
+    transition: color 0.15s;
 }
 
-#the-list tr:active {
+.fh-drag-handle:hover {
+    color: #555;
+}
+
+.fh-drag-handle:active {
     cursor: grabbing;
 }
 
-#the-list tr.fh-sortable-placeholder {
-    visibility: visible;
-    background: #f0f6fc;
+.fh-sort-placeholder {
+    height: 40px;
+    background: #f0f6ff;
     border: 2px dashed #72aee6;
-    opacity: 0.6;
-}
-
-#the-list tr.ui-sortable-helper {
-    background: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    outline: 1px solid #72aee6;
-    border-radius: 2px;
-    opacity: 0.95;
-}
-
-/* Drag handle hint on row hover */
-#the-list tr:hover td.column-fh_thumbnail::before {
-    content: "⠿";
     display: block;
-    font-size: 16px;
-    color: #a7aaad;
-    line-height: 1;
-    margin-bottom: 4px;
 }
 
-/* ============================================================
-   3. OPTIONS PAGE — Header Settings
-   ============================================================ */
+.ui-sortable-helper {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: #fff;
+    outline: 1px solid #72aee6;
+}
 
 .fh-options-wrap {
     max-width: 780px;
 }
 
-.fh-options-wrap h1 {
-    margin-bottom: 1.5em;
-}
-
 .fh-options-wrap .form-table th {
     width: 180px;
-    padding-top: 1em;
-    font-weight: 600;
 }
-
-.fh-options-wrap .form-table td {
-    padding-top: 0.75em;
-}
-
-.fh-options-wrap input.regular-text {
-    width: 100%;
-    max-width: 480px;
-}
-
-/* ============================================================
-   4. ADMIN NOTICE — Save confirmation
-   ============================================================ */
 
 .fh-notice-saved {
     border-left-color: #00a32a;
-    padding: 10px 16px;
 }
