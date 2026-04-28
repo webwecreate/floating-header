@@ -103,7 +103,8 @@ function fh_render_shortcode( $atts ) {
 }
 
 // ─── Position Calculators ─────────────────────────────────────────────────────
-// Safety zone: x 20–80%, y 25–75% — ทุก pattern วาง logo นอก zone นี้
+// Safety zone: x 20–80%, y 25–75%
+// Inset ทุก pattern เพิ่มขึ้นเพื่อรองรับ float animation โดยไม่ชนขอบ
 
 function fh_calc_logo_position( $index, $total, $layout = 'frame' ) {
     switch ( $layout ) {
@@ -115,65 +116,75 @@ function fh_calc_logo_position( $index, $total, $layout = 'frame' ) {
     }
 }
 
-// Pattern: Frame — กระจายรอบขอบ 4 ด้าน (แนะนำ)
+// Pattern: Frame — interleave (0→top 1→right 2→bottom 3→left วนซ้ำ)
 function fh_pos_frame( $index, $total ) {
-    $per_zone   = max( 1, (int) ceil( $total / 4 ) );
-    $zone       = min( 3, (int) floor( $index / $per_zone ) );
-    $slot       = $index % $per_zone;
-    $zone_count = max( 1, min( $per_zone, $total - $zone * $per_zone ) );
+    $zone = $index % 4;
 
-    $t = $zone_count > 1 ? $slot / ( $zone_count - 1 ) : 0.5;
-    $s = ( $slot % 2 === 0 ) ? 5 : 0; // stagger ให้ไม่เรียงกันเป๊ะ
+    if ( $total <= $zone ) {
+        return [ 'x' => 50, 'y' => 50 ];
+    }
+
+    $zone_count = (int) floor( ( $total - $zone - 1 ) / 4 ) + 1;
+    $slot       = (int) floor( $index / 4 );
+    $t          = $zone_count > 1 ? $slot / ( $zone_count - 1 ) : 0.5;
+    $s          = ( $slot % 2 === 0 ) ? 5 : 0;
 
     switch ( $zone ) {
-        case 0: return [ 'x' => 8  + $t * 84, 'y' => 6  + $s ];      // top
-        case 1: return [ 'x' => 84 + $s,       'y' => 20 + $t * 60 ]; // right
-        case 2: return [ 'x' => 92 - $t * 84,  'y' => 84 + $s ];      // bottom
-        case 3: return [ 'x' => 4  + $s,       'y' => 80 - $t * 60 ]; // left
+        case 0: return [ 'x' => 10 + $t * 80, 'y' => 10 + $s ];      // top
+        case 1: return [ 'x' => 86 + $s,       'y' => 20 + $t * 56 ]; // right
+        case 2: return [ 'x' => 90 - $t * 80,  'y' => 87 + $s ];      // bottom
+        case 3: return [ 'x' => 6  + $s,       'y' => 76 - $t * 56 ]; // left
     }
     return [ 'x' => 50, 'y' => 50 ];
 }
 
-// Pattern: Left / Right columns
+// Pattern: Left / Right columns — inset x เพิ่มจาก 7/93 → 10/90
 function fh_pos_lr( $index, $total ) {
-    $side  = $index % 2; // 0=left, 1=right
+    $side  = $index % 2;
     $slot  = (int) floor( $index / 2 );
     $slots = max( 1, (int) ceil( $total / 2 ) );
     $t     = $slots > 1 ? $slot / ( $slots - 1 ) : 0.5;
     $sx    = ( $slot % 2 === 0 ) ? 4 : 0;
 
     return [
-        'x' => $side === 0 ? 7 + $sx : 93 - $sx,
+        'x' => $side === 0 ? 10 + $sx : 90 - $sx,
         'y' => 10 + $t * 80,
     ];
 }
 
-// Pattern: Top / Bottom rows
+// Pattern: Top / Bottom rows — inset y เพิ่มจาก 7/93 → 10/90
 function fh_pos_tb( $index, $total ) {
-    $row   = $index % 2; // 0=top, 1=bottom
+    $row   = $index % 2;
     $slot  = (int) floor( $index / 2 );
     $slots = max( 1, (int) ceil( $total / 2 ) );
     $t     = $slots > 1 ? $slot / ( $slots - 1 ) : 0.5;
     $sy    = ( $slot % 2 === 0 ) ? 6 : 0;
 
     return [
-        'x' => 8 + $t * 84,
-        'y' => $row === 0 ? 7 + $sy : 93 - $sy,
+        'x' => 10 + $t * 80,
+        'y' => $row === 0 ? 10 + $sy : 90 - $sy,
     ];
 }
 
-// Pattern: Corners — กระจาย 4 มุม
+// Pattern: Corners — predefined offsets ป้องกัน logo ซ้อนกันเมื่อ 4–8 ตัว
 function fh_pos_corners( $index, $total ) {
-    $corner = $index % 4; // 0=TL 1=TR 2=BL 3=BR
-    $slot   = (int) floor( $index / 4 );
-    $sx     = ( $slot % 3 ) * 6;
-    $sy     = (int) floor( $slot / 3 ) * 8;
+    $corner  = $index % 4;
+    $slot    = (int) floor( $index / 4 );
+
+    $offsets = [
+        [  0,  0 ],
+        [  9,  0 ],
+        [  0, 11 ],
+        [  9, 11 ],
+        [  4,  5 ],
+    ];
+    $off = $offsets[ min( $slot, 4 ) ];
 
     $map = [
-        0 => [ 'x' => 6  + $sx, 'y' => 6  + $sy ],
-        1 => [ 'x' => 88 - $sx, 'y' => 6  + $sy ],
-        2 => [ 'x' => 6  + $sx, 'y' => 84 - $sy ],
-        3 => [ 'x' => 88 - $sx, 'y' => 84 - $sy ],
+        0 => [ 'x' => 10 + $off[0], 'y' => 10 + $off[1] ], // TL
+        1 => [ 'x' => 86 - $off[0], 'y' => 10 + $off[1] ], // TR
+        2 => [ 'x' => 10 + $off[0], 'y' => 86 - $off[1] ], // BL
+        3 => [ 'x' => 86 - $off[0], 'y' => 86 - $off[1] ], // BR
     ];
     return $map[ $corner ] ?? [ 'x' => 50, 'y' => 50 ];
 }

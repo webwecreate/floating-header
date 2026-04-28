@@ -1,6 +1,28 @@
 # CHANGELOG — Floating Header Plugin
 > ห้ามเขียนทับ — เพิ่มรายการใหม่ด้านบนเสมอ (newest first)
 
+## [1.0.4] — 2026-04-28
+### Fixed — Layout distribution + overflow clipping (2 ไฟล์)
+
+#### includes/shortcode.php → v1.0.4
+- **Bug fix `fh_pos_frame`**: เปลี่ยน algorithm จาก sequential → **interleave** (`$index % 4`)
+  - เดิม: แบ่ง logos เป็นบล็อก top/right/bottom/left → ถ้า 6 logos จะกองแค่ top+right+bottom ด้านซ้ายว่าง
+  - ใหม่: วนรอบทุกตัว logo 0→top, 1→right, 2→bottom, 3→left, 4→top, 5→right... → ทุกด้านได้ logos สม่ำเสมอ
+  - เพิ่ม inset: top y 6→10%, bottom y 84→87%, right x 84→86%, left x 4→6%
+- **Bug fix `fh_pos_corners`**: เปลี่ยน scatter จาก `$sx/$sy` formula → predefined `$offsets` array
+  - เดิม: logos 4–7 ตัวแรก ($slot=0) ทุกตัวได้ sx=0, sy=0 → ซ้อนกันที่พิกัดเดิม
+  - ใหม่: offset [0,0], [9,0], [0,11], [9,11], [4,5] ทำให้ logo แรกในแต่ละมุมกระจายทันที
+  - เพิ่ม inset: ทุกมุมเปลี่ยนจาก 6→10% จากขอบ
+- **Inset ทุก pattern** เพิ่มขึ้น 3% เพื่อรองรับ float animation ไม่ชนขอบ
+  - `fh_pos_lr`: x left 7→10%, x right 93→90%
+  - `fh_pos_tb`: y top 7→10%, y bottom 93→90%, x range 8–92 → 10–90
+
+#### assets/style.css → v1.0.4
+- **Bug fix**: เปลี่ยน `.fh-wrapper` จาก `overflow: hidden` → `overflow: visible`
+  - เดิม: logo ที่อยู่ใกล้ขอบ wrapper เมื่อ float animation เลื่อน Y จะโดนตัดหายไป
+  - ใหม่: logo float ได้อิสระออกนอก wrapper เล็กน้อยโดยไม่ถูก clip
+  - มีผลทุก pattern เนื่องจาก animation ทำงานกับทุก logo
+
 ## [1.0.2-part5b] — 2026-04-27
 ### Fixed + Added — Part 5b: Bug fix images + Admin Help Page
 
