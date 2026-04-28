@@ -64,6 +64,20 @@ function fh_get_layouts() {
                 <circle cx="79" cy="45" r="4" fill="#6d62e8"/><circle cx="71" cy="45" r="3" fill="#6d62e8" opacity=".6"/>
             </svg>',
         ],
+        'zigzag'  => [
+            'label' => 'Zigzag',
+            'desc'  => 'แถวเดียว สลับบน/ล่าง title',
+            'svg'   => '<svg width="88" height="54" viewBox="0 0 88 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="88" height="54" rx="5" fill="#f1f0fd"/>
+                <rect x="8" y="21" width="72" height="12" rx="3" fill="#e0dffb" stroke="#c7c4f8" stroke-width="0.5" stroke-dasharray="3 2"/>
+                <circle cx="10" cy="13" r="4" fill="#6d62e8"/>
+                <circle cx="26" cy="38" r="4" fill="#6d62e8"/>
+                <circle cx="42" cy="13" r="4" fill="#6d62e8"/>
+                <circle cx="58" cy="38" r="4" fill="#6d62e8"/>
+                <circle cx="74" cy="13" r="4" fill="#6d62e8"/>
+                <circle cx="84" cy="38" r="3" fill="#6d62e8" opacity=".6"/>
+            </svg>',
+        ],
     ];
 }
 
@@ -412,6 +426,7 @@ floating-header/<br>
                     <tr><td>Left / Right</td><td><code>layout="lr"</code></td><td>Logo 4–10 ตัว สมมาตรซ้าย-ขวา</td></tr>
                     <tr><td>Top / Bottom</td><td><code>layout="tb"</code></td><td>Hero banner แนวนอน</td></tr>
                     <tr><td>Corners</td><td><code>layout="corners"</code></td><td>Logo 13+ ตัว dynamic</td></tr>
+                    <tr><td>Zigzag</td><td><code>layout="zigzag"</code></td><td>แถวเดียว สลับบน/ล่าง title</td></tr>
                 </tbody>
             </table>
             <div class="fh-tip blue"><span class="fh-tip-icon">💡</span><p>หลัง Save จะได้ shortcode พร้อม attribute ที่ถูกต้องให้ copy ทันที ดูได้ที่ด้านล่าง form</p></div>

@@ -1,6 +1,24 @@
 # CHANGELOG — Floating Header Plugin
 > ห้ามเขียนทับ — เพิ่มรายการใหม่ด้านบนเสมอ (newest first)
 
+## [1.0.5] — 2026-04-28
+### Added — Pattern ใหม่: Zigzag (3 ไฟล์)
+
+#### includes/shortcode.php → v1.0.5
+- เพิ่ม `case 'zigzag'` ใน `fh_calc_logo_position()`
+- เพิ่มฟังก์ชัน `fh_pos_zigzag( $index, $total )`:
+  - logo วิ่งเป็นแนวนอน x: 8–92% กระจายทั่ว wrapper
+  - y สลับ: index คู่ → เหนือ title (y ≈ 25–30%), index คี่ → ใต้ title (y ≈ 70–75%)
+  - stagger เพิ่มเติมทุก 2 ตัว ±5% เพื่อไม่ให้เรียงเป๊ะ
+
+#### includes/options-page.php → v1.0.5
+- เพิ่ม `zigzag` ใน `fh_get_layouts()` พร้อม SVG preview และ label
+- เพิ่มแถว Zigzag ในตาราง Layout Reference ของหน้าคู่มือ
+
+#### assets/admin.css → v1.0.5
+- เปลี่ยน layout grid จาก `repeat(4, 1fr)` → `repeat(auto-fill, minmax(108px, 1fr))` รองรับ 5 pattern
+- เพิ่ม max-width จาก 580px → 640px
+
 ## [1.0.4] — 2026-04-28
 ### Fixed — Layout distribution + overflow clipping (2 ไฟล์)
 

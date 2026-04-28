@@ -111,6 +111,7 @@ function fh_calc_logo_position( $index, $total, $layout = 'frame' ) {
         case 'lr':      return fh_pos_lr( $index, $total );
         case 'tb':      return fh_pos_tb( $index, $total );
         case 'corners': return fh_pos_corners( $index, $total );
+        case 'zigzag':  return fh_pos_zigzag( $index, $total );
         case 'frame':
         default:        return fh_pos_frame( $index, $total );
     }
@@ -188,3 +189,16 @@ function fh_pos_corners( $index, $total ) {
     ];
     return $map[ $corner ] ?? [ 'x' => 50, 'y' => 50 ];
 }
+
+// Pattern: Zigzag — แนวนอน 1 แถว สลับบน/ล่าง title
+function fh_pos_zigzag( $index, $total ) {
+    $t     = $total > 1 ? $index / ( $total - 1 ) : 0.5;
+    $high  = ( $index % 2 === 0 ); // คู่=เหนือ title, คี่=ใต้ title
+    $extra = ( (int) floor( $index / 2 ) % 2 === 0 ) ? 0 : 5; // stagger เล็กน้อยทุก 2 ตัว
+
+    return [
+        'x' => 8 + $t * 84,
+        'y' => $high ? 30 - $extra : 70 + $extra,
+    ];
+}
+
