@@ -9,7 +9,7 @@
 .fh-wrapper {
     position: relative;
     min-height: 400px;
-    overflow: hidden;
+    overflow: visible;
     width: 100%;
 }
 
