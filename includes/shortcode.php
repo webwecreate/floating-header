@@ -1,12 +1,23 @@
 <?php
+/**
+ * Floating Header — shortcode.php
+ * Version: 1.0.2
+ */
+
 if ( ! defined( 'ABSPATH' ) || ! defined( 'FH_VERSION' ) ) {
     exit;
 }
 
+// Register style ก่อน เพื่อให้ Elementor / late enqueue หยิบได้
+function fh_register_frontend_style() {
+    wp_register_style( 'fh-style', FH_ASSETS . 'style.css', [], FH_VERSION );
+}
+add_action( 'wp_enqueue_scripts', 'fh_register_frontend_style' );
+
 add_shortcode( 'floating_header', 'fh_render_shortcode' );
 
 function fh_render_shortcode() {
-    wp_enqueue_style( 'fh-style', FH_ASSETS . 'style.css', [], FH_VERSION );
+    wp_enqueue_style( 'fh-style' );
 
     $title    = get_option( 'fh_title', '' );
     $subtitle = get_option( 'fh_subtitle', '' );
@@ -22,18 +33,27 @@ function fh_render_shortcode() {
 
     $logos = [];
     foreach ( $raw_logos as $logo ) {
-        if ( ! has_post_thumbnail( $logo->ID ) ) {
+        $thumbnail_id = get_post_thumbnail_id( $logo->ID );
+        if ( ! $thumbnail_id ) {
             continue;
         }
-        $url = get_the_post_thumbnail_url( $logo->ID, 'medium' );
+        // ดึง URL จาก attachment โดยตรง — fallback full ถ้า medium ไม่มี
+        $url = wp_get_attachment_image_url( $thumbnail_id, 'medium' );
+        if ( ! $url ) {
+            $url = wp_get_attachment_image_url( $thumbnail_id, 'full' );
+        }
         if ( ! $url ) {
             continue;
         }
-        $logos[] = [ 'post' => $logo, 'url' => $url ];
+        // alt อยู่บน attachment post ไม่ใช่บน fh_logo post
+        $alt = get_post_meta( $thumbnail_id, '_wp_attachment_image_alt', true );
+        if ( ! $alt ) {
+            $alt = get_the_title( $logo->ID );
+        }
+        $logos[] = [ 'url' => $url, 'alt' => $alt ];
     }
 
-    $total = count( $logos );
-
+    $total      = count( $logos );
     $tier_class = '';
     if ( $total >= 13 ) {
         $tier_class = 'fh-tier-4';
@@ -49,22 +69,18 @@ function fh_render_shortcode() {
     >
         <div class="fh-logo-layer">
             <?php foreach ( $logos as $index => $item ) :
-                $logo      = $item['post'];
-                $url       = $item['url'];
-                $alt_meta  = get_post_meta( $logo->ID, '_wp_attachment_image_alt', true );
-                $alt       = $alt_meta ?: get_the_title( $logo->ID );
                 $pos       = fh_calc_logo_position( $index, $total );
                 $direction = ( $index % 2 === 0 ) ? 'fh-float-up' : 'fh-float-down';
-                $delay     = $index * 0.5;
-                $duration  = 3 + ( $index % 3 * 0.5 );
+                $delay     = round( $index * 0.5, 1 );
+                $duration  = round( 3 + ( $index % 3 * 0.5 ), 1 );
             ?>
                 <div
                     class="fh-logo <?php echo esc_attr( $direction ); ?>"
-                    style="--fh-x:<?php echo (float) $pos['x']; ?>%; --fh-y:<?php echo (float) $pos['y']; ?>%; --fh-delay:<?php echo (float) $delay; ?>s; --fh-duration:<?php echo (float) $duration; ?>s;"
+                    style="--fh-x:<?php echo (float) $pos['x']; ?>%;--fh-y:<?php echo (float) $pos['y']; ?>%;--fh-delay:<?php echo $delay; ?>s;--fh-duration:<?php echo $duration; ?>s;"
                 >
                     <img
-                        src="<?php echo esc_url( $url ); ?>"
-                        alt="<?php echo esc_attr( $alt ); ?>"
+                        src="<?php echo esc_url( $item['url'] ); ?>"
+                        alt="<?php echo esc_attr( $item['alt'] ); ?>"
                         loading="lazy"
                         decoding="async"
                     >

@@ -1,6 +1,19 @@
 # CHANGELOG — Floating Header Plugin
 > ห้ามเขียนทับ — เพิ่มรายการใหม่ด้านบนเสมอ (newest first)
 
+## [1.0.2-part5b] — 2026-04-27
+### Fixed + Added — Part 5b: Bug fix images + Admin Help Page
+
+#### includes/shortcode.php → v1.0.2
+- **Bug fix**: เปลี่ยน `get_the_post_thumbnail_url()` เป็น `wp_get_attachment_image_url()` โดยส่ง `$thumbnail_id` โดยตรง — ทำงานได้แน่นอนกว่าใน context ต่างๆ
+- **Bug fix alt text**: เดิม `get_post_meta( $logo->ID, '_wp_attachment_image_alt' )` ผิด เพราะ meta นี้เก็บบน **attachment post** ไม่ใช่ fh_logo post → แก้เป็น `get_post_meta( $thumbnail_id, '_wp_attachment_image_alt' )`
+- **Bug fix CSS enqueue**: แยก register style ออกเป็น `fh_register_frontend_style()` บน `wp_enqueue_scripts` hook ก่อน แล้วค่อย `wp_enqueue_style('fh-style')` ใน shortcode — ป้องกัน race condition กับ Elementor
+- Fallback: ถ้า `medium` size ไม่มี ใช้ `full` size แทน (ป้องกัน URL ว่าง)
+
+#### includes/options-page.php → v1.0.2
+- เพิ่ม `fh_register_help_page()` — submenu "📖 คู่มือ" ใต้ Floating Logos (capability: `edit_posts`)
+- เพิ่ม `fh_render_help_page()` — หน้าคู่มือแบบ inline HTML ใน WP Admin ครบ 8 หัวข้อ: โครงสร้าง, ติดตั้ง, เพิ่ม Logo, จัดลำดับ, Settings, Elementor, Layout Reference, Troubleshooting
+
 ---
 
 ## [1.0.1-part5] — 2026-04-27
