@@ -1,7 +1,73 @@
 <?php
+/**
+ * Floating Header — options-page.php
+ * Version: 1.0.3
+ */
+
 if ( ! defined( 'ABSPATH' ) || ! defined( 'FH_VERSION' ) ) {
     exit;
 }
+
+// ─── Layout definitions (shared between settings UI and shortcode preview) ───
+
+function fh_get_layouts() {
+    return [
+        'frame'   => [
+            'label' => 'Frame',
+            'desc'  => 'กระจายรอบขอบ (แนะนำ)',
+            'svg'   => '<svg width="88" height="54" viewBox="0 0 88 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="88" height="54" rx="5" fill="#f1f0fd"/>
+                <rect x="20" y="14" width="48" height="26" rx="3" fill="#e0dffb" stroke="#c7c4f8" stroke-width="0.5" stroke-dasharray="3 2"/>
+                <circle cx="10" cy="10" r="4" fill="#6d62e8"/><circle cx="30" cy="6"  r="4" fill="#6d62e8"/>
+                <circle cx="58" cy="6"  r="4" fill="#6d62e8"/><circle cx="78" cy="10" r="4" fill="#6d62e8"/>
+                <circle cx="78" cy="27" r="4" fill="#6d62e8"/>
+                <circle cx="78" cy="44" r="4" fill="#6d62e8"/><circle cx="58" cy="48" r="4" fill="#6d62e8"/>
+                <circle cx="30" cy="48" r="4" fill="#6d62e8"/><circle cx="10" cy="44" r="4" fill="#6d62e8"/>
+                <circle cx="10" cy="27" r="4" fill="#6d62e8"/>
+            </svg>',
+        ],
+        'lr'      => [
+            'label' => 'Left / Right',
+            'desc'  => 'สองคอลัมน์ ซ้าย-ขวา',
+            'svg'   => '<svg width="88" height="54" viewBox="0 0 88 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="88" height="54" rx="5" fill="#f1f0fd"/>
+                <rect x="20" y="14" width="48" height="26" rx="3" fill="#e0dffb" stroke="#c7c4f8" stroke-width="0.5" stroke-dasharray="3 2"/>
+                <circle cx="9"  cy="12" r="4" fill="#6d62e8"/><circle cx="9"  cy="27" r="4" fill="#6d62e8"/>
+                <circle cx="9"  cy="42" r="4" fill="#6d62e8"/>
+                <circle cx="79" cy="12" r="4" fill="#6d62e8"/><circle cx="79" cy="27" r="4" fill="#6d62e8"/>
+                <circle cx="79" cy="42" r="4" fill="#6d62e8"/>
+            </svg>',
+        ],
+        'tb'      => [
+            'label' => 'Top / Bottom',
+            'desc'  => 'สองแถว บน-ล่าง',
+            'svg'   => '<svg width="88" height="54" viewBox="0 0 88 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="88" height="54" rx="5" fill="#f1f0fd"/>
+                <rect x="20" y="14" width="48" height="26" rx="3" fill="#e0dffb" stroke="#c7c4f8" stroke-width="0.5" stroke-dasharray="3 2"/>
+                <circle cx="14" cy="7"  r="4" fill="#6d62e8"/><circle cx="30" cy="7"  r="4" fill="#6d62e8"/>
+                <circle cx="44" cy="7"  r="4" fill="#6d62e8"/><circle cx="58" cy="7"  r="4" fill="#6d62e8"/>
+                <circle cx="74" cy="7"  r="4" fill="#6d62e8"/>
+                <circle cx="14" cy="47" r="4" fill="#6d62e8"/><circle cx="30" cy="47" r="4" fill="#6d62e8"/>
+                <circle cx="44" cy="47" r="4" fill="#6d62e8"/><circle cx="58" cy="47" r="4" fill="#6d62e8"/>
+                <circle cx="74" cy="47" r="4" fill="#6d62e8"/>
+            </svg>',
+        ],
+        'corners' => [
+            'label' => 'Corners',
+            'desc'  => 'กระจาย 4 มุม',
+            'svg'   => '<svg width="88" height="54" viewBox="0 0 88 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="88" height="54" rx="5" fill="#f1f0fd"/>
+                <rect x="20" y="14" width="48" height="26" rx="3" fill="#e0dffb" stroke="#c7c4f8" stroke-width="0.5" stroke-dasharray="3 2"/>
+                <circle cx="9"  cy="9"  r="4" fill="#6d62e8"/><circle cx="17" cy="9"  r="3" fill="#6d62e8" opacity=".6"/>
+                <circle cx="79" cy="9"  r="4" fill="#6d62e8"/><circle cx="71" cy="9"  r="3" fill="#6d62e8" opacity=".6"/>
+                <circle cx="9"  cy="45" r="4" fill="#6d62e8"/><circle cx="17" cy="45" r="3" fill="#6d62e8" opacity=".6"/>
+                <circle cx="79" cy="45" r="4" fill="#6d62e8"/><circle cx="71" cy="45" r="3" fill="#6d62e8" opacity=".6"/>
+            </svg>',
+        ],
+    ];
+}
+
+// ─── Menu Registration ────────────────────────────────────────────────────────
 
 function fh_register_options_page() {
     add_submenu_page(
@@ -15,6 +81,8 @@ function fh_register_options_page() {
 }
 add_action( 'admin_menu', 'fh_register_options_page' );
 
+// ─── Settings Registration ────────────────────────────────────────────────────
+
 function fh_register_settings() {
     register_setting( 'fh_options_group', 'fh_title', [
         'sanitize_callback' => 'sanitize_text_field',
@@ -24,15 +92,22 @@ function fh_register_settings() {
         'sanitize_callback' => 'wp_kses_post',
         'default'           => '',
     ] );
+    register_setting( 'fh_options_group', 'fh_layout', [
+        'sanitize_callback' => 'sanitize_key',
+        'default'           => 'frame',
+    ] );
 }
 add_action( 'admin_init', 'fh_register_settings' );
+
+// ─── Settings Page Render ─────────────────────────────────────────────────────
 
 function fh_render_options_page() {
     if ( ! current_user_can( 'manage_options' ) ) {
         return;
     }
 
-    $saved = false;
+    $saved   = false;
+    $layouts = fh_get_layouts();
 
     if (
         isset( $_POST['fh_options_nonce'] )
@@ -40,11 +115,14 @@ function fh_render_options_page() {
     ) {
         update_option( 'fh_title',    sanitize_text_field( $_POST['fh_title'] ?? '' ) );
         update_option( 'fh_subtitle', wp_kses_post( $_POST['fh_subtitle'] ?? '' ) );
+        $posted_layout = sanitize_key( $_POST['fh_layout'] ?? 'frame' );
+        update_option( 'fh_layout',   array_key_exists( $posted_layout, $layouts ) ? $posted_layout : 'frame' );
         $saved = true;
     }
 
     $title    = get_option( 'fh_title', '' );
     $subtitle = get_option( 'fh_subtitle', '' );
+    $layout   = get_option( 'fh_layout', 'frame' );
 
     wp_enqueue_style( 'fh-admin-css', FH_ASSETS . 'admin.css', [], FH_VERSION );
     ?>
@@ -60,11 +138,10 @@ function fh_render_options_page() {
         <form method="post">
             <?php wp_nonce_field( 'fh_save_options', 'fh_options_nonce' ); ?>
             <table class="form-table">
+
                 <tr>
                     <th scope="row">
-                        <label for="fh_title">
-                            <?php esc_html_e( 'Title', 'floating-header' ); ?>
-                        </label>
+                        <label for="fh_title"><?php esc_html_e( 'Title', 'floating-header' ); ?></label>
                     </th>
                     <td>
                         <input
@@ -76,6 +153,7 @@ function fh_render_options_page() {
                         >
                     </td>
                 </tr>
+
                 <tr>
                     <th scope="row">
                         <label><?php esc_html_e( 'Subtitle', 'floating-header' ); ?></label>
@@ -91,14 +169,106 @@ function fh_render_options_page() {
                         ?>
                     </td>
                 </tr>
+
+                <tr>
+                    <th scope="row">
+                        <label><?php esc_html_e( 'Logo Layout', 'floating-header' ); ?></label>
+                        <p class="description" style="font-weight:400;margin-top:6px;">
+                            <?php esc_html_e( 'เลือก pattern การวาง logo รอบ title', 'floating-header' ); ?>
+                        </p>
+                    </th>
+                    <td>
+                        <div class="fh-layout-grid">
+                            <?php foreach ( $layouts as $key => $info ) : ?>
+                                <label class="fh-layout-card <?php echo $layout === $key ? 'is-selected' : ''; ?>">
+                                    <input
+                                        type="radio"
+                                        name="fh_layout"
+                                        value="<?php echo esc_attr( $key ); ?>"
+                                        <?php checked( $layout, $key ); ?>
+                                        data-layout="<?php echo esc_attr( $key ); ?>"
+                                    >
+                                    <?php echo $info['svg']; ?>
+                                    <strong><?php echo esc_html( $info['label'] ); ?></strong>
+                                    <span><?php echo esc_html( $info['desc'] ); ?></span>
+                                    <?php if ( $key === 'frame' ) : ?>
+                                        <span class="fh-badge-recommend"><?php esc_html_e( 'แนะนำ', 'floating-header' ); ?></span>
+                                    <?php endif; ?>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </td>
+                </tr>
+
             </table>
             <?php submit_button( __( 'Save Settings', 'floating-header' ) ); ?>
         </form>
+
+        <!-- ── Shortcode Preview ──────────────────────────────────────── -->
+        <div class="fh-shortcode-preview">
+            <div class="fh-shortcode-preview__label">
+                <?php esc_html_e( 'Shortcode ของคุณ', 'floating-header' ); ?>
+            </div>
+            <p class="fh-shortcode-preview__hint">
+                <?php esc_html_e( 'Copy shortcode นี้ไปวางใน Elementor → Shortcode widget, Gutenberg, หรือ Classic Editor', 'floating-header' ); ?>
+            </p>
+            <div class="fh-shortcode-box">
+                <code id="fh-shortcode-output">[floating_header layout="<?php echo esc_attr( $layout ); ?>"]</code>
+                <button type="button" id="fh-copy-btn" class="fh-copy-btn">
+                    <?php esc_html_e( 'Copy', 'floating-header' ); ?>
+                </button>
+            </div>
+            <p class="fh-shortcode-preview__note">
+                <?php esc_html_e( '* shortcode อัปเดตทันทีเมื่อเลือก layout ด้านบน กด Save เพื่อบันทึกการตั้งค่า', 'floating-header' ); ?>
+            </p>
+        </div>
+
     </div>
+
+    <script>
+    (function () {
+        // Live preview: เปลี่ยน shortcode output ทันทีเมื่อเลือก layout
+        var radios  = document.querySelectorAll('input[name="fh_layout"]');
+        var output  = document.getElementById('fh-shortcode-output');
+        var cards   = document.querySelectorAll('.fh-layout-card');
+        var copyBtn = document.getElementById('fh-copy-btn');
+
+        radios.forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                output.textContent = '[floating_header layout="' + this.value + '"]';
+                cards.forEach(function (c) { c.classList.remove('is-selected'); });
+                this.closest('.fh-layout-card').classList.add('is-selected');
+            });
+        });
+
+        copyBtn.addEventListener('click', function () {
+            var text = output.textContent;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function () {
+                    copyBtn.textContent = '✓ Copied!';
+                    copyBtn.classList.add('is-copied');
+                    setTimeout(function () {
+                        copyBtn.textContent = 'Copy';
+                        copyBtn.classList.remove('is-copied');
+                    }, 2000);
+                });
+            } else {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                copyBtn.textContent = '✓ Copied!';
+                setTimeout(function () { copyBtn.textContent = 'Copy'; }, 2000);
+            }
+        });
+    })();
+    </script>
     <?php
 }
 
-// ─── Help Page ──────────────────────────────────────────────
+// ─── Help Page ───────────────────────────────────────────────────────────────
 
 function fh_register_help_page() {
     add_submenu_page(
@@ -170,8 +340,8 @@ function fh_render_help_page() {
                 <li><a href="#fh-s3">เพิ่ม Logo รูปภาพ</a></li>
                 <li><a href="#fh-s4">จัดเรียงลำดับ Logo</a></li>
                 <li><a href="#fh-s5">ตั้งค่า Title &amp; Subtitle</a></li>
-                <li><a href="#fh-s6">ใช้งานใน Elementor</a></li>
-                <li><a href="#fh-s7">ตาราง Layout Reference</a></li>
+                <li><a href="#fh-s6">เลือก Layout Pattern</a></li>
+                <li><a href="#fh-s7">ใช้งานใน Elementor</a></li>
                 <li><a href="#fh-s8">Troubleshooting</a></li>
             </ul>
         </nav>
@@ -180,18 +350,14 @@ function fh_render_help_page() {
             <h2><span class="fh-num">1</span> โครงสร้าง Plugin</h2>
             <div class="fh-code">
 floating-header/<br>
-├── floating-header.php &nbsp;&nbsp;<span style="color:#6b7280">← Plugin หลัก</span><br>
+├── floating-header.php<br>
 ├── includes/<br>
-│ &nbsp;&nbsp;├── cpt.php &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6b7280">← Custom Post Type + drag sort</span><br>
-│ &nbsp;&nbsp;├── options-page.php &nbsp;<span style="color:#6b7280">← Settings + คู่มือนี้</span><br>
-│ &nbsp;&nbsp;└── shortcode.php &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6b7280">← Render + layout คำนวณเอง</span><br>
+│ &nbsp;&nbsp;├── cpt.php<br>
+│ &nbsp;&nbsp;├── options-page.php<br>
+│ &nbsp;&nbsp;└── shortcode.php<br>
 └── assets/<br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── style.css &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6b7280">← Animation + responsive</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;└── admin.css &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6b7280">← Admin panel styling</span>
-            </div>
-            <div class="fh-tip blue">
-                <span class="fh-tip-icon">ℹ️</span>
-                <p>ถ้าไฟล์ใดหายไป Plugin จะ<strong>ไม่ crash</strong> แต่จะแสดง Admin Notice แจ้งชื่อไฟล์ที่ขาดแทน</p>
+&nbsp;&nbsp;&nbsp;&nbsp;├── style.css<br>
+&nbsp;&nbsp;&nbsp;&nbsp;└── admin.css
             </div>
         </div>
 
@@ -199,30 +365,28 @@ floating-header/<br>
             <h2><span class="fh-num">2</span> การติดตั้ง</h2>
             <ul class="fh-steps">
                 <li><strong>Upload ไฟล์</strong><span>วาง folder <code>floating-header</code> ที่ <code>wp-content/plugins/floating-header/</code></span></li>
-                <li><strong>Activate Plugin</strong><span>ไปที่ Plugins → หา Floating Header → กด <strong>Activate</strong></span></li>
-                <li><strong>ตรวจสอบเมนู</strong><span>จะมีเมนู <strong>Floating Logos</strong> ใน sidebar พร้อม submenu <strong>Header Settings</strong> และ <strong>คู่มือ</strong></span></li>
+                <li><strong>Activate</strong><span>Plugins → หา Floating Header → Activate</span></li>
+                <li><strong>ตรวจสอบเมนู</strong><span>จะมีเมนู <strong>Floating Logos</strong> พร้อม submenu <strong>Header Settings</strong> และ <strong>📖 คู่มือ</strong></span></li>
             </ul>
-            <div class="fh-tip green"><span class="fh-tip-icon">✅</span><p>ต้องการ WordPress <strong>5.8+</strong> ไม่ต้องติดตั้ง Plugin เพิ่ม ทำงานกับ Elementor ได้ทันที</p></div>
         </div>
 
         <div class="fh-section" id="fh-s3">
             <h2><span class="fh-num">3</span> เพิ่ม Logo รูปภาพ</h2>
             <ul class="fh-steps">
-                <li><strong>Floating Logos → Add New</strong><span>คลิกเมนู Floating Logos แล้วกด Add New Logo</span></li>
-                <li><strong>ตั้งชื่อ (Title)</strong><span>ใส่ชื่อ logo เช่น "Partner A" — ใช้เป็น alt text ถ้าไม่ได้ตั้งแยก</span></li>
-                <li><strong>Set Featured Image</strong><span>คลิก <strong>Set Featured Image</strong> ด้านขวา → อัพโหลดหรือเลือกจาก Media Library</span></li>
-                <li><strong>Publish</strong><span>กด Publish — <code>publish</code> = แสดง, <code>draft</code> = ซ่อน</span></li>
+                <li><strong>Floating Logos → Add New</strong><span>คลิกเมนู แล้วกด Add New Logo</span></li>
+                <li><strong>ตั้งชื่อ (Title)</strong><span>ใส่ชื่อ logo — ใช้เป็น alt text ถ้าไม่ได้ตั้งแยก</span></li>
+                <li><strong>Set Featured Image</strong><span>คลิก <strong>Set Featured Image</strong> ด้านขวา → เลือกรูปจาก Media Library</span></li>
+                <li><strong>Publish</strong><span><code>publish</code> = แสดง, <code>draft</code> = ซ่อน</span></li>
             </ul>
-            <div class="fh-tip green"><span class="fh-tip-icon">🖼️</span><p><strong>แนะนำ:</strong> PNG transparent หรือ SVG ขนาด 200×100px ขึ้นไป</p></div>
-            <div class="fh-tip yellow"><span class="fh-tip-icon">⚠️</span><p>Logo ที่<strong>ไม่มี Featured Image</strong> จะถูก skip อัตโนมัติ ไม่ error แต่ไม่แสดงบน Frontend</p></div>
+            <div class="fh-tip yellow"><span class="fh-tip-icon">⚠️</span><p>Logo ที่<strong>ไม่มี Featured Image</strong> จะถูก skip อัตโนมัติ</p></div>
         </div>
 
         <div class="fh-section" id="fh-s4">
             <h2><span class="fh-num">4</span> จัดเรียงลำดับ Logo</h2>
             <ul class="fh-steps">
-                <li><strong>ไปที่ Floating Logos (หน้า list)</strong><span>คลิกเมนู Floating Logos เพื่อดูรายการ</span></li>
-                <li><strong>ลาก icon ⠿</strong><span>icon สีเทาปรากฏที่คอลัมน์ Image — คลิกค้างแล้วลากขึ้น/ลง</span></li>
-                <li><strong>ปล่อยเพื่อบันทึก</strong><span>บันทึกอัตโนมัติผ่าน AJAX ไม่ต้องกด Save</span></li>
+                <li><strong>ไปที่ Floating Logos (หน้า list)</strong><span>คลิกเมนู Floating Logos</span></li>
+                <li><strong>ลาก icon ⠿</strong><span>คลิกค้างที่คอลัมน์ Image แล้วลาก</span></li>
+                <li><strong>ปล่อยเพื่อบันทึก</strong><span>บันทึก AJAX อัตโนมัติ ไม่ต้องกด Save</span></li>
             </ul>
         </div>
 
@@ -233,48 +397,35 @@ floating-header/<br>
                 <thead><tr><th>Field</th><th>ประเภท</th><th>คำอธิบาย</th></tr></thead>
                 <tbody>
                     <tr><td><code>fh_title</code></td><td>Text</td><td>Title หลัก แสดงเป็น <code>&lt;h1&gt;</code> — ปล่อยว่างไม่แสดง</td></tr>
-                    <tr><td><code>fh_subtitle</code></td><td>HTML</td><td>Subtitle รองรับ HTML ผ่าน TinyMCE — ปล่อยว่างไม่แสดง</td></tr>
+                    <tr><td><code>fh_subtitle</code></td><td>HTML</td><td>Subtitle รองรับ HTML ผ่าน TinyMCE</td></tr>
                 </tbody>
             </table>
         </div>
 
         <div class="fh-section" id="fh-s6">
-            <h2><span class="fh-num">6</span> ใช้งาน Shortcode ใน Elementor</h2>
-            <ul class="fh-steps">
-                <li><strong>เปิด Elementor Editor</strong><span>Edit ด้วย Elementor บน Page ที่ต้องการ</span></li>
-                <li><strong>เพิ่ม Widget "Shortcode"</strong><span>ค้นหา widget ชื่อ <strong>Shortcode</strong> แล้วลากวางใน column</span></li>
-                <li><strong>พิมพ์ shortcode</strong><span><div class="fh-code" style="margin:8px 0;">[floating_header]</div></span></li>
-                <li><strong>กด Update / Publish</strong><span>logo จะลอยขึ้น-ลงพร้อม title กลางจอทันที</span></li>
-            </ul>
-            <div class="fh-tip blue"><span class="fh-tip-icon">💡</span><p>แนะนำใส่ใน Section ที่มี min-height ตั้งไว้ เช่น 400px เพื่อให้ logo มีพื้นที่</p></div>
-
-            <h3 style="font-size:15px;font-weight:700;margin:20px 0 10px;">Gutenberg / Classic Editor</h3>
-            <ul class="fh-steps">
-                <li><strong>Gutenberg</strong><span>เพิ่ม Block → ค้นหา <strong>Shortcode</strong> → พิมพ์ <code>[floating_header]</code></span></li>
-                <li><strong>Classic Editor</strong><span>พิมพ์ <code>[floating_header]</code> ลงใน Content ได้เลย</span></li>
-                <li><strong>PHP Template</strong><span><code>&lt;?php echo do_shortcode('[floating_header]'); ?&gt;</code></span></li>
-            </ul>
+            <h2><span class="fh-num">6</span> เลือก Layout Pattern</h2>
+            <p style="font-size:14px;color:#5a5a7a;margin-bottom:14px;">เลือกได้ที่ <strong>Header Settings → Logo Layout</strong> มี 4 แบบ</p>
+            <table class="fh-table">
+                <thead><tr><th>Pattern</th><th>Shortcode attribute</th><th>เหมาะกับ</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Frame</strong> ✦ แนะนำ</td><td><code>layout="frame"</code></td><td>ทุกกรณี กระจายรอบขอบ 4 ด้าน</td></tr>
+                    <tr><td>Left / Right</td><td><code>layout="lr"</code></td><td>Logo 4–10 ตัว สมมาตรซ้าย-ขวา</td></tr>
+                    <tr><td>Top / Bottom</td><td><code>layout="tb"</code></td><td>Hero banner แนวนอน</td></tr>
+                    <tr><td>Corners</td><td><code>layout="corners"</code></td><td>Logo 13+ ตัว dynamic</td></tr>
+                </tbody>
+            </table>
+            <div class="fh-tip blue"><span class="fh-tip-icon">💡</span><p>หลัง Save จะได้ shortcode พร้อม attribute ที่ถูกต้องให้ copy ทันที ดูได้ที่ด้านล่าง form</p></div>
         </div>
 
         <div class="fh-section" id="fh-s7">
-            <h2><span class="fh-num">7</span> ตาราง Layout Reference</h2>
-            <table class="fh-table">
-                <thead><tr><th>จำนวน Logo</th><th>Layout</th><th>Class</th></tr></thead>
-                <tbody>
-                    <tr><td>1 – 3</td><td>1 แถว กระจาย horizontal</td><td>—</td></tr>
-                    <tr><td>4 – 6</td><td>2 แถว × 3 คอลัมน์</td><td>—</td></tr>
-                    <tr><td>7 – 12</td><td>3 แถว × 4 คอลัมน์ + offset</td><td><code>fh-tier-3</code></td></tr>
-                    <tr><td>13+</td><td>Scatter เต็มพื้นที่</td><td><code>fh-tier-4</code></td></tr>
-                </tbody>
-            </table>
-            <table class="fh-table">
-                <thead><tr><th>Breakpoint</th><th>min-height</th><th>Logo max-width</th><th>Float distance</th></tr></thead>
-                <tbody>
-                    <tr><td>Desktop (&gt;768px)</td><td>400px</td><td>120px</td><td>20px</td></tr>
-                    <tr><td>Tablet (≤768px)</td><td>280px</td><td>80px</td><td>12px</td></tr>
-                    <tr><td>Mobile (≤480px)</td><td>220px</td><td>56px</td><td>8px</td></tr>
-                </tbody>
-            </table>
+            <h2><span class="fh-num">7</span> ใช้งานใน Elementor</h2>
+            <ul class="fh-steps">
+                <li><strong>เปิด Elementor Editor</strong><span>Edit ด้วย Elementor บน Page ที่ต้องการ</span></li>
+                <li><strong>เพิ่ม Widget "Shortcode"</strong><span>ค้นหา Shortcode widget แล้วลากวาง</span></li>
+                <li><strong>Paste shortcode จาก Header Settings</strong><span>Copy จาก section "Shortcode ของคุณ" แล้ว paste</span></li>
+                <li><strong>Update / Publish</strong><span>logo จะลอยขึ้น-ลงพร้อม title</span></li>
+            </ul>
+            <div class="fh-tip blue"><span class="fh-tip-icon">ℹ️</span><p>ถ้าต้องการใช้หลาย layout ในหน้าเดียวกัน ใส่ attribute ได้โดยตรง เช่น <code>[floating_header layout="lr"]</code></p></div>
         </div>
 
         <div class="fh-section" id="fh-s8">
@@ -282,31 +433,10 @@ floating-header/<br>
             <table class="fh-table">
                 <thead><tr><th>ปัญหา</th><th>สาเหตุ</th><th>วิธีแก้</th></tr></thead>
                 <tbody>
-                    <tr>
-                        <td>Logo ไม่แสดงบน Frontend</td>
-                        <td>Post ไม่ได้ Publish หรือยังไม่ได้ตั้ง Featured Image</td>
-                        <td>ตรวจสอบ status และ Featured Image ทุก logo</td>
-                    </tr>
-                    <tr>
-                        <td>มีแค่ Title/Subtitle ไม่มีรูป</td>
-                        <td>Featured Image ยังไม่ถูก Set บน fh_logo post</td>
-                        <td>Floating Logos → Edit แต่ละ post → Set Featured Image</td>
-                    </tr>
-                    <tr>
-                        <td>CSS ไม่โหลด (ไม่มี animation)</td>
-                        <td>style.css ไม่อยู่ใน <code>assets/</code></td>
-                        <td>ตรวจสอบว่าไฟล์ <code>assets/style.css</code> อยู่ครบ</td>
-                    </tr>
-                    <tr>
-                        <td>Admin Notice "Missing files"</td>
-                        <td>ไฟล์ใน <code>includes/</code> หาย</td>
-                        <td>Re-upload plugin ให้ครบทุกไฟล์</td>
-                    </tr>
-                    <tr>
-                        <td>Logo ซ้อนทับ Title</td>
-                        <td>logo z-index (1) ต่ำกว่า title (10) แล้ว แต่ Logo ใหญ่เกินไป</td>
-                        <td>ลดขนาดรูปหรือปรับ <code>max-width</code> ใน style.css</td>
-                    </tr>
+                    <tr><td>Logo ไม่แสดง</td><td>ไม่มี Featured Image หรือ status ไม่ใช่ publish</td><td>Edit post → Set Featured Image → Update</td></tr>
+                    <tr><td>มีแค่ Title ไม่มีรูป</td><td>data-logo-count="0" ใน HTML</td><td>ตรวจสอบ Featured Image ทุก logo</td></tr>
+                    <tr><td>Layout ไม่เปลี่ยน</td><td>ยังไม่ได้ Save Settings</td><td>กด Save Settings ใน Header Settings</td></tr>
+                    <tr><td>CSS ไม่โหลด</td><td>ไฟล์ assets/style.css หาย</td><td>Re-upload plugin ให้ครบ</td></tr>
                 </tbody>
             </table>
         </div>

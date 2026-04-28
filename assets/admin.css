@@ -58,3 +58,151 @@
 .fh-notice-saved {
     border-left-color: #00a32a;
 }
+
+/* ─── Layout Card Picker ─────────────────────────────── */
+.fh-layout-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 6px 0;
+    max-width: 580px;
+}
+
+.fh-layout-card {
+    position: relative;
+    border: 1.5px solid #e5e7f0;
+    border-radius: 10px;
+    padding: 14px 10px 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+    background: #fff;
+}
+
+.fh-layout-card:hover {
+    border-color: #a5b4fc;
+    background: #f8f9ff;
+}
+
+.fh-layout-card.is-selected {
+    border-color: #4f46e5;
+    background: #eef2ff;
+    box-shadow: 0 0 0 3px #c7d2fe55;
+}
+
+.fh-layout-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+}
+
+.fh-layout-card svg {
+    display: block;
+    margin: 0 auto 8px;
+}
+
+.fh-layout-card strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 3px;
+}
+
+.fh-layout-card span {
+    display: block;
+    font-size: 11px;
+    color: #5a5a7a;
+    line-height: 1.4;
+}
+
+.fh-badge-recommend {
+    display: inline-block;
+    background: #4f46e5;
+    color: #fff !important;
+    font-size: 10px !important;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-top: 5px;
+}
+
+/* ─── Shortcode Preview Section ──────────────────────── */
+.fh-shortcode-preview {
+    background: #f8f9ff;
+    border: 1px solid #e5e7f0;
+    border-top: 3px solid #4f46e5;
+    border-radius: 0 0 10px 10px;
+    padding: 24px 28px 20px;
+    margin-top: -1px;
+    max-width: 780px;
+}
+
+.fh-shortcode-preview__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #4f46e5;
+    margin-bottom: 6px;
+}
+
+.fh-shortcode-preview__hint {
+    font-size: 13px;
+    color: #5a5a7a;
+    margin: 0 0 14px;
+    line-height: 1.5;
+}
+
+.fh-shortcode-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #1a1a2e;
+    padding: 14px 18px;
+    border-radius: 8px;
+}
+
+.fh-shortcode-box code {
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    color: #a5b4fc;
+    background: none;
+    padding: 0;
+    user-select: all;
+    white-space: nowrap;
+}
+
+.fh-copy-btn {
+    background: #4f46e5;
+    color: #fff;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.fh-copy-btn:hover {
+    background: #4338ca;
+}
+
+.fh-copy-btn.is-copied {
+    background: #059669;
+}
+
+.fh-shortcode-preview__note {
+    font-size: 12px;
+    color: #8b8ba5;
+    margin: 10px 0 0;
+    font-style: italic;
+}

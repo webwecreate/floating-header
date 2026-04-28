@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'FH_VERSION',  '1.0.1' );
+define( 'FH_VERSION',  '1.0.3' );
 define( 'FH_DIR',      plugin_dir_path( __FILE__ ) );
 define( 'FH_URL',      plugin_dir_url( __FILE__ ) );
 define( 'FH_INCLUDES', FH_DIR . 'includes/' );

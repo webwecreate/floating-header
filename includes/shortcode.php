@@ -1,14 +1,13 @@
 <?php
 /**
  * Floating Header — shortcode.php
- * Version: 1.0.2
+ * Version: 1.0.3
  */
 
 if ( ! defined( 'ABSPATH' ) || ! defined( 'FH_VERSION' ) ) {
     exit;
 }
 
-// Register style ก่อน เพื่อให้ Elementor / late enqueue หยิบได้
 function fh_register_frontend_style() {
     wp_register_style( 'fh-style', FH_ASSETS . 'style.css', [], FH_VERSION );
 }
@@ -16,7 +15,14 @@ add_action( 'wp_enqueue_scripts', 'fh_register_frontend_style' );
 
 add_shortcode( 'floating_header', 'fh_render_shortcode' );
 
-function fh_render_shortcode() {
+function fh_render_shortcode( $atts ) {
+    $atts = shortcode_atts(
+        [ 'layout' => get_option( 'fh_layout', 'frame' ) ],
+        $atts,
+        'floating_header'
+    );
+    $layout = sanitize_key( $atts['layout'] );
+
     wp_enqueue_style( 'fh-style' );
 
     $title    = get_option( 'fh_title', '' );
@@ -37,19 +43,13 @@ function fh_render_shortcode() {
         if ( ! $thumbnail_id ) {
             continue;
         }
-        // ดึง URL จาก attachment โดยตรง — fallback full ถ้า medium ไม่มี
-        $url = wp_get_attachment_image_url( $thumbnail_id, 'medium' );
-        if ( ! $url ) {
-            $url = wp_get_attachment_image_url( $thumbnail_id, 'full' );
-        }
+        $url = wp_get_attachment_image_url( $thumbnail_id, 'medium' )
+            ?: wp_get_attachment_image_url( $thumbnail_id, 'full' );
         if ( ! $url ) {
             continue;
         }
-        // alt อยู่บน attachment post ไม่ใช่บน fh_logo post
-        $alt = get_post_meta( $thumbnail_id, '_wp_attachment_image_alt', true );
-        if ( ! $alt ) {
-            $alt = get_the_title( $logo->ID );
-        }
+        $alt     = get_post_meta( $thumbnail_id, '_wp_attachment_image_alt', true )
+                ?: get_the_title( $logo->ID );
         $logos[] = [ 'url' => $url, 'alt' => $alt ];
     }
 
@@ -66,10 +66,11 @@ function fh_render_shortcode() {
     <section
         class="fh-wrapper <?php echo esc_attr( $tier_class ); ?>"
         data-logo-count="<?php echo esc_attr( $total ); ?>"
+        data-layout="<?php echo esc_attr( $layout ); ?>"
     >
         <div class="fh-logo-layer">
             <?php foreach ( $logos as $index => $item ) :
-                $pos       = fh_calc_logo_position( $index, $total );
+                $pos       = fh_calc_logo_position( $index, $total, $layout );
                 $direction = ( $index % 2 === 0 ) ? 'fh-float-up' : 'fh-float-down';
                 $delay     = round( $index * 0.5, 1 );
                 $duration  = round( 3 + ( $index % 3 * 0.5 ), 1 );
@@ -101,38 +102,78 @@ function fh_render_shortcode() {
     return ob_get_clean();
 }
 
-function fh_calc_logo_position( $index, $total ) {
-    if ( $total <= 3 ) {
-        $map = [
-            [ 'x' => 15, 'y' => 50 ],
-            [ 'x' => 50, 'y' => 50 ],
-            [ 'x' => 85, 'y' => 50 ],
-        ];
-        return $map[ $index ] ?? [ 'x' => 50, 'y' => 50 ];
-    }
+// ─── Position Calculators ─────────────────────────────────────────────────────
+// Safety zone: x 20–80%, y 25–75% — ทุก pattern วาง logo นอก zone นี้
 
-    if ( $total <= 6 ) {
-        $x_cols = [ 15, 50, 85 ];
-        $y_rows = [ 30, 70 ];
-        return [
-            'x' => $x_cols[ $index % 3 ],
-            'y' => $y_rows[ (int) floor( $index / 3 ) ] ?? 50,
-        ];
+function fh_calc_logo_position( $index, $total, $layout = 'frame' ) {
+    switch ( $layout ) {
+        case 'lr':      return fh_pos_lr( $index, $total );
+        case 'tb':      return fh_pos_tb( $index, $total );
+        case 'corners': return fh_pos_corners( $index, $total );
+        case 'frame':
+        default:        return fh_pos_frame( $index, $total );
     }
+}
 
-    if ( $total <= 12 ) {
-        $x_cols   = [ 15, 38, 62, 85 ];
-        $y_rows   = [ 20, 50, 80 ];
-        $x_offset = ( $index % 2 === 0 ) ? 4 : -4;
-        $y_offset = ( $index % 2 === 0 ) ? 5 : -5;
-        return [
-            'x' => ( $x_cols[ $index % 4 ] ?? 50 ) + $x_offset,
-            'y' => ( $y_rows[ (int) floor( $index / 4 ) ] ?? 50 ) + $y_offset,
-        ];
+// Pattern: Frame — กระจายรอบขอบ 4 ด้าน (แนะนำ)
+function fh_pos_frame( $index, $total ) {
+    $per_zone   = max( 1, (int) ceil( $total / 4 ) );
+    $zone       = min( 3, (int) floor( $index / $per_zone ) );
+    $slot       = $index % $per_zone;
+    $zone_count = max( 1, min( $per_zone, $total - $zone * $per_zone ) );
+
+    $t = $zone_count > 1 ? $slot / ( $zone_count - 1 ) : 0.5;
+    $s = ( $slot % 2 === 0 ) ? 5 : 0; // stagger ให้ไม่เรียงกันเป๊ะ
+
+    switch ( $zone ) {
+        case 0: return [ 'x' => 8  + $t * 84, 'y' => 6  + $s ];      // top
+        case 1: return [ 'x' => 84 + $s,       'y' => 20 + $t * 60 ]; // right
+        case 2: return [ 'x' => 92 - $t * 84,  'y' => 84 + $s ];      // bottom
+        case 3: return [ 'x' => 4  + $s,       'y' => 80 - $t * 60 ]; // left
     }
+    return [ 'x' => 50, 'y' => 50 ];
+}
+
+// Pattern: Left / Right columns
+function fh_pos_lr( $index, $total ) {
+    $side  = $index % 2; // 0=left, 1=right
+    $slot  = (int) floor( $index / 2 );
+    $slots = max( 1, (int) ceil( $total / 2 ) );
+    $t     = $slots > 1 ? $slot / ( $slots - 1 ) : 0.5;
+    $sx    = ( $slot % 2 === 0 ) ? 4 : 0;
 
     return [
-        'x' => ( $index * 37 + 13 ) % 78 + 8,
-        'y' => ( $index * 53 + 7  ) % 78 + 8,
+        'x' => $side === 0 ? 7 + $sx : 93 - $sx,
+        'y' => 10 + $t * 80,
     ];
+}
+
+// Pattern: Top / Bottom rows
+function fh_pos_tb( $index, $total ) {
+    $row   = $index % 2; // 0=top, 1=bottom
+    $slot  = (int) floor( $index / 2 );
+    $slots = max( 1, (int) ceil( $total / 2 ) );
+    $t     = $slots > 1 ? $slot / ( $slots - 1 ) : 0.5;
+    $sy    = ( $slot % 2 === 0 ) ? 6 : 0;
+
+    return [
+        'x' => 8 + $t * 84,
+        'y' => $row === 0 ? 7 + $sy : 93 - $sy,
+    ];
+}
+
+// Pattern: Corners — กระจาย 4 มุม
+function fh_pos_corners( $index, $total ) {
+    $corner = $index % 4; // 0=TL 1=TR 2=BL 3=BR
+    $slot   = (int) floor( $index / 4 );
+    $sx     = ( $slot % 3 ) * 6;
+    $sy     = (int) floor( $slot / 3 ) * 8;
+
+    $map = [
+        0 => [ 'x' => 6  + $sx, 'y' => 6  + $sy ],
+        1 => [ 'x' => 88 - $sx, 'y' => 6  + $sy ],
+        2 => [ 'x' => 6  + $sx, 'y' => 84 - $sy ],
+        3 => [ 'x' => 88 - $sx, 'y' => 84 - $sy ],
+    ];
+    return $map[ $corner ] ?? [ 'x' => 50, 'y' => 50 ];
 }
